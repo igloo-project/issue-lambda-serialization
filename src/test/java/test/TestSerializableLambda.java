@@ -13,8 +13,14 @@ import org.junit.Test;
 public class TestSerializableLambda {
 
 	@Test
-	public void testSerializableLambda() throws ClassNotFoundException, IOException {
-		Broken<ChildLambdaProvider> r = new Broken<>();
+	public void testSerializableLambdaBroken() throws ClassNotFoundException, IOException {
+		Broken<LambdaProvider<Long>> r = new Broken<>();
+		serializeAndDeserialize(r);
+	}
+
+	@Test
+	public void testSerializableLambdaOk() throws ClassNotFoundException, IOException {
+		Ok<LambdaProvider<Long>> r = new Ok<>();
 		serializeAndDeserialize(r);
 	}
 
@@ -34,12 +40,19 @@ public class TestSerializableLambda {
 			this.idExpression = (Serializable & Function<E, ?>) LambdaProvider::getId;
 		}
 	}
+	
+	public static class Ok<E extends LambdaProvider<?>> implements Serializable {
+		private static final long serialVersionUID = -2775595600924717218L;
+		private Function<E, ?> idExpression;
+
+		public Ok() {
+			this.idExpression = (Serializable & Function<E, ?>) (e) -> e.getId();
+		}
+	}
 
 	public static class LambdaProvider<I extends Comparable<I>> {
 		public I getId() {
 			return null;
 		}
 	}
-
-	public static class ChildLambdaProvider extends LambdaProvider<Long> {}
 }
